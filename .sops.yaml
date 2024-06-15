@@ -1,0 +1,53 @@
+keys:
+ # Encrypt with PGP and not the SSH key listed in flake.nix:
+ # https://github.com/Mic92/sops-nix/issues/297
+  - &myself age1h0awuc0w24n5nla92z53y7qyfds33v7ykzaluul8wgrktp0kkqps4tcvpy
+ # Generate an age key from the host's key:
+ #  nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+ # Encrypt a file:
+ #  nix-shell -p sops --run "sops hosts/modules/impermanence/backup.yaml"
+ # Rekey a file:
+ #  nix-shell -p sops --run "sops updatekeys hosts/modules/impermanence/backup.yaml"
+  - &shensen-desktop age12uayncnfru0fljuaqu26z09r96hjl94elcym2dr5f57vr6uu5d4ssw3ghq
+  - &shensen-laptop age1ag2eyjmu40kjzr3u37823n4u9na4a7h4m7kfp3e8ey9jyea3pvpqnj5pwk
+
+#####################################
+
+  - &VPS1 age19ktush5tcqew7cwn8f3yzdcu6475374stcssqlly2gw9fl5n9qtql2m3yk
+
+
+creation_rules:
+  - path_regex: ^personal.yaml$
+    key_groups:
+    - age:
+      - *myself
+      - *shensen-desktop
+      - *shensen-laptop
+
+  - path_regex: ^hosts/shensen-dekstop/.*\.yaml$
+    key_groups:
+    - age:
+      - *myself
+      - *shensen-desktop
+
+  - path_regex: ^hosts/shensen-laptop/.*\.yaml$
+    key_groups:
+    - age:
+      - *myself
+      - *shensen-laptop
+
+######################################
+
+  - path_regex: ^allHosts.yaml$
+    key_groups:
+    - age:
+      - *myself
+      - *VPS1
+
+  - path_regex: ^hosts/VPS1/.*\.yaml$
+    key_groups:
+    - age:
+      - *myself
+      - *VPS1
+
+
