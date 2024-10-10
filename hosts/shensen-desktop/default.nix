@@ -1,20 +1,17 @@
-{ config, pkgs, ... }:
 {
+  /*
+  options = {
 
-/*
-options = {
+  };
 
-};
+  config = {
+  */
 
-config = {
-*/
-
-  imports =
-    [
-      ./hardware.nix
-      ./hardware-configuration.nix
-      ./networking/default.nix
-    ];
+  imports = [
+    ./hardware.nix
+    ./hardware-configuration.nix
+    ./networking/default.nix
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -24,5 +21,4 @@ config = {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
   networking.hostName = "shensen-desktop"; # Define your hostname.
-
 }

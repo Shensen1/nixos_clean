@@ -1,16 +1,8 @@
-{ config, pkgs, ... }:
 {
-
-
-  environment.systemPackages = with pkgs; [
-    samba gvfs
-  ];
-
-
-################################# Samba
+  ################################# Samba
 
   services.samba-wsdd.enable = true; # make shares visible for windows 10 clients
-  services.gvfs.enable = true;       # make Samba searchable trough the network
+  services.gvfs.enable = true; # make Samba searchable trough the network
 
   services.samba = {
     enable = true;
@@ -29,7 +21,7 @@
       map to guest = bad user
     '';
     shares = {
-        Content_HDD = {
+      Content_HDD = {
         path = "/mnt/HDD/00 public shared";
         browseable = "yes";
         "read only" = "yes";
@@ -40,7 +32,7 @@
         "force group" = "users";
       };
 
-        Mounts = {
+      Mounts = {
         path = "/mnt/";
         browseable = "yes";
         "read only" = "no";
@@ -51,7 +43,7 @@
         "force group" = "users";
       };
 
-        Home_Shensen = {
+      Home_Shensen = {
         path = "/home/shensen/";
         browseable = "yes";
         "read only" = "no";
@@ -61,46 +53,50 @@
         "force user" = "shensen";
         "force group" = "users";
       };
-
     };
   };
 
+  /*
+  system.activationScripts = {
+
+    smb.text =
+    ''
+
+    '';
+  }
+  */
+
+  /*
+  ####################################################################
+  #####################################################################
+                !!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!
+                        User  Authentication
 
 
 
-/*
-####################################################################
-#####################################################################
-              !!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!
-                      User  Authentication
+  For a user to be authenticated on the samba server, you must add their password using
 
 
-
-For a user to be authenticated on the samba server, you must add their password using
-
-
-smbpasswd -a <user> as root.
+  smbpasswd -a <user> as root.
 
 
-#####################################################################
-####################################################################
+  #####################################################################
+  ####################################################################
 
 
-    ​￼systemd.services.smbpwwzrd = {
-      enable = true;
-      description = "smbpasswd ";
-      ​￼unitConfig = {
-        Type = "oneshot";
+      ​￼systemd.services.smbpwwzrd = {
+        enable = true;
+        description = "smbpasswd ";
+        ​￼unitConfig = {
+          Type = "oneshot";
+          # ...
+        };
+        ​￼serviceConfig = {
+          ExecStart = "/bin/sh -c '/run/current-system/sw/bin/smbpasswd -a shensen' ";
+          # ...
+        };
+        wantedBy = [ "multi-user.target" ];
         # ...
       };
-      ​￼serviceConfig = {
-        ExecStart = "/bin/sh -c '/run/current-system/sw/bin/smbpasswd -a shensen' ";
-        # ...
-      };
-      wantedBy = [ "multi-user.target" ];
-      # ...
-    };
-
-*/
-
+  */
 }

@@ -1,24 +1,16 @@
-{ config, pkgs, ... }:
 {
-
-
-  environment.systemPackages = with pkgs; [
-    samba gvfs
-  ];
-
-
-################################# Samba
+  ################################# Samba
 
   services.samba-wsdd.enable = true; # make shares visible for windows 10 clients
-  services.gvfs.enable = true;       # make Samba searchable trough the network
+  services.gvfs.enable = true; # make Samba searchable trough the network
 
   services.samba = {
     enable = true;
     securityType = "user";
     extraConfig = ''
       workgroup = WORKGROUP
-      server string = smbnixdesktop
-      netbios name = smbnixdesktop
+      server string = smb-shensen-laptop
+      netbios name = smb-shensen-laptop
       security = user
       #use sendfile = yes
       #max protocol = smb2
@@ -68,42 +60,37 @@
     */
   };
 
+  /*
+  ####################################################################
+  #####################################################################
+                !!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!
+                        User  Authentication
 
 
 
-/*
-####################################################################
-#####################################################################
-              !!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!
-                      User  Authentication
+  For a user to be authenticated on the samba server, you must add their password using
 
 
-
-For a user to be authenticated on the samba server, you must add their password using
-
-
-smbpasswd -a <user> as root.
+  smbpasswd -a <user> as root.
 
 
-#####################################################################
-####################################################################
+  #####################################################################
+  ####################################################################
 
 
-    ​￼systemd.services.smbpwwzrd = {
-      enable = true;
-      description = "smbpasswd ";
-      ​￼unitConfig = {
-        Type = "oneshot";
+      ​￼systemd.services.smbpwwzrd = {
+        enable = true;
+        description = "smbpasswd ";
+        ​￼unitConfig = {
+          Type = "oneshot";
+          # ...
+        };
+        ​￼serviceConfig = {
+          ExecStart = "/bin/sh -c '/run/current-system/sw/bin/smbpasswd -a shensen' ";
+          # ...
+        };
+        wantedBy = [ "multi-user.target" ];
         # ...
       };
-      ​￼serviceConfig = {
-        ExecStart = "/bin/sh -c '/run/current-system/sw/bin/smbpasswd -a shensen' ";
-        # ...
-      };
-      wantedBy = [ "multi-user.target" ];
-      # ...
-    };
-
-*/
-
+  */
 }

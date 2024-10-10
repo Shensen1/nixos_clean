@@ -1,39 +1,50 @@
-{ config, pkgs, lib, home-manager, pkgs-stable, personalValues, ... }:
 {
+  softSecrets,
+  config,
+  pkgs,
+  pkgs-stable,
+  ...
+}: {
+  sops = {
+    #defaultSopsFile = ./personal.yaml;
+    age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+    #age.keyFile = "/persist/sops.txt";
 
-
-    users.users = {
-      minion = {
-
-        hashedPassword = "$6$wHnSHOlcdTScLyJ2$BTEqx6RVIYGeLMEqGjjt8KyYBQSIXGe06AcM1wEufJGd1FSEQV60I2GKgvNUouzVOYrlBjg2uDTfeRNH64Gpx0";
-        isNormalUser = true;
-        home = "/home/minion";
-        extraGroups = [ "wheel" ];
-        group = "minion";
-
-
-        openssh.authorizedKeys.keys = [
-            personalValues.pubHostKey.shensen-desktop
-            personalValues.pubHostKey.shensen-laptop
-            personalValues.pubUserKey.shensen
-
-        ];
+    secrets = {
+      "gh_deploykey" = {
+        sopsFile = ./../../allHosts.yaml;
+        path = "/var/secrets/gh_deploykey";
+        mode = "0600";
+        owner = config.users.users.minion.name;
+        group = config.users.users.minion.group;
       };
     };
-    users.groups.minion = {};
+  };
 
+  users.users = {
+    minion = {
+      hashedPassword = softSecrets.users.minion.hashedPassword;
+      isNormalUser = true;
+      home = "/home/minion";
+      extraGroups = ["wheel"];
+      group = "minion";
 
-# tide configure --auto --style=Rainbow --prompt_colors='16 colors' --show_time='24-hour format' --rainbow_prompt_separators=Round --powerline_prompt_heads=Round --powerline_prompt_tails=Round --powerline_prompt_style='Two lines, frame' --prompt_connection=Dotted --powerline_right_prompt_frame=No --prompt_spacing=Compact --icons='Many icons' --transient=No
+      openssh.authorizedKeys.keys = [
+        softSecrets.hosts.shensen-desktop.publicKey
+        softSecrets.hosts.shensen-laptop.publicKey
+        softSecrets.users.shensen.publicKey
+      ];
+    };
+  };
+  users.groups.minion = {};
 
-     environment.systemPackages = 
-    (with pkgs; [
-     
+  programs.ssh.extraConfig = "
+  Host github-nixos
+    HostName github.com
+    AddKeysToAgent yes
+    PreferredAuthentications publicKey
+    IdentityFile ${config.sops.secrets.gh_deploykey.path}
+";
 
-    ])
-    
-    ++ 
-    
-    (with pkgs-stable; [
-      
-    ]);
+  services.self-deploy.sshKeyFile = "/home/minion/.ssh/deploykey";
 }

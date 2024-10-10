@@ -13,7 +13,7 @@ keys:
 
 #####################################
 
-  - &VPS1 age19ktush5tcqew7cwn8f3yzdcu6475374stcssqlly2gw9fl5n9qtql2m3yk
+  - &vps1 age19ktush5tcqew7cwn8f3yzdcu6475374stcssqlly2gw9fl5n9qtql2m3yk
 
 
 creation_rules:
@@ -42,12 +42,12 @@ creation_rules:
     key_groups:
     - age:
       - *myself
-      - *VPS1
+      - *vps1
 
   - path_regex: ^hosts/VPS1/.*\.yaml$
     key_groups:
     - age:
       - *myself
-      - *VPS1
+      - *vps1
 
 
